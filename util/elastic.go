@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
 	"time"
 
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -14,19 +12,18 @@ import (
 // BulkRequester processes a row and adds work to the bulk request
 type BulkRequester func(rows *sql.Rows, bulkRequest *elastic.BulkService)
 
-const timeout time.Duration = 1000000000
-const elasticURL string = "http://127.0.0.1:32840"
+const timeout time.Duration = 2000000000
 const bulkSize int = 5000
 
 // Connect gets a connection to the elasticsearch server
-func Connect() *elastic.Client {
+func Connect(url string, errorLog elastic.Logger, infoLog elastic.Logger) *elastic.Client {
 	client, err := elastic.NewClient(
-		elastic.SetURL(elasticURL),
+		elastic.SetURL(url),
 		elastic.SetSniff(false),
 		elastic.SetHealthcheckInterval(10*time.Second),
 		elastic.SetMaxRetries(5),
-		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)),
-		elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)))
+		elastic.SetErrorLog(errorLog),
+		elastic.SetInfoLog(infoLog))
 	check(err)
 	return client
 }
@@ -49,21 +46,36 @@ func CreateIndex(client *elastic.Client, mapping string, name string) {
 	}
 }
 
-// IterateSQL processes a collection of rows and executes bulk requests
+func worker(id int, jobs <-chan *elastic.BulkService) {
+	for j := range jobs {
+		executeBulkResults(j)
+	}
+}
+
+// IterateSQL processes a collection of rows and executes bulk requests async
 func IterateSQL(rows *sql.Rows, client *elastic.Client, fn BulkRequester) {
+
+	jobs := make(chan *elastic.BulkService, 100)
+	for w := 1; w <= 2; w++ {
+		go worker(w, jobs)
+	}
+
 	bulkRequest := client.Bulk()
 	n := 0
 	for rows.Next() {
 		fn(rows, bulkRequest)
 		if n > bulkSize {
-			executeBulkResults(bulkRequest)
+			jobs <- bulkRequest
+			bulkRequest = client.Bulk()
 			n = 0
 		}
 		n++
 	}
 	if n > 0 {
-		executeBulkResults(bulkRequest)
+		jobs <- bulkRequest
 	}
+
+	close(jobs)
 
 	check(rows.Err())
 }

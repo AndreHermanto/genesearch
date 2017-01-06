@@ -3,7 +3,8 @@ package indexers
 import (
 	"database/sql"
 	"fmt"
-	elasticutil "garvan/shusson/stretchy/util"
+
+	elasticutil "github.com/shusson/genesearch/util"
 
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -41,10 +42,13 @@ func (g GeneIndexer) BuildIndex(client *elastic.Client, shards int, replicas int
 				"gene":{
 						"properties":{
 								"symbol":{
-									"type":"text"
-								},
-								"concrete":{
-									"type":"keyword"
+									"type":"text",
+									"fields": {
+        						"raw": {
+            					"type":  "string",
+            					"index": "not_analyzed"
+        						}
+    							}
 								},
 								"description":{
 									"type":"text"

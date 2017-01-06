@@ -6,7 +6,7 @@ import (
 
 	elastic "gopkg.in/olivere/elastic.v5"
 
-	elasticutil "garvan/shusson/stretchy/util"
+	elasticutil "github.com/shusson/genesearch/util"
 )
 
 // Chromosome elasticsearch chromosome struct
