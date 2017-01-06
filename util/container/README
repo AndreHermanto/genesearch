@@ -1,0 +1,37 @@
+Create an sql container
+
+CAVEATS:
+$sysctl -w vm.max_map_count=262144
+
+// create a volume only container so that we can share the data
+$ docker create -v /usr/share/elasticsearch/data --name elasticdnaindex elasticsearch /bin/true
+
+// run the container with the volumne only container
+$ docker run -d --volumes-from elasticdnaindex --name elasticdna -p 32840:9200 -v "$PWD/config":/usr/share/elasticsearch/config elasticsearch
+
+Backup and restore:
+// create a backup of the data in the volume only container
+$ docker run --rm --volumes-from elasticdnaindex -v $(pwd):/backup busybox tar cvf /backup/elasticdna.dump.tar
+
+// move the back up to another machine where there are no volume containers
+...
+
+// create the volume only container again
+$ docker create -v /usr/share/elasticsearch/data --name elasticdnaindex elasticsearch /bin/true
+
+// run some checks - should be empty
+$ docker run --rm --volumes-from elasticdnaindex busybox ls -l  /usr/share/elasticsearch/data
+
+// extract the data into the volume only container
+$ docker run --rm --volumes-from elasticdnaindex -v $(pwd):/backup busybox tar xvf /backup/elasticdna.dump.tar
+
+// should have files now
+$ docker run --rm --volumes-from elasticdnaindex busybox ls -l  /usr/share/elasticsearch/data
+
+// run the elasticsearch instance again
+$ docker run -d --volumes-from elasticdnaindex --name elasticdna -p 32840:9200 -v "$PWD/config":/usr/share/elasticsearch/config elasticsearch
+
+
+OR
+
+Build the data only image in the docker folder and export the image to wherever. Then you can just create a data only container from that image
