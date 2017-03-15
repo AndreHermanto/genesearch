@@ -1,4 +1,4 @@
-Create an sql container
+Create an Elastic Search container
 
 ### Caveats:
 Elastic search may require the following:
