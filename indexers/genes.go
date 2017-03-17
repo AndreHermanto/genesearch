@@ -14,7 +14,6 @@ type Gene struct {
 	ID          string `json:"id"`
 	Symbol      string `json:"symbol"`
 	Biotype     string `json:"biotype"`
-	Concrete    string `json:"concrete"`
 	Description string `json:"description"`
 	Chromosome  string `json:"chromosome"`
 	Start       int    `json:"start"`
@@ -103,7 +102,7 @@ func addGeneDocuments(db *sql.DB, client *elastic.Client, query string) {
 		var end int
 		err = rows.Scan(&id, &enid, &biotype, &symbol, &desc, &chromosome, &start, &end)
 		check(err)
-		gene := Gene{ID: enid, Biotype: biotype, Concrete: symbol, Symbol: symbol, Description: string(desc), Chromosome: chromosome, Start: start, End: end}
+		gene := Gene{ID: enid, Biotype: biotype, Symbol: symbol, Description: string(desc), Chromosome: chromosome, Start: start, End: end}
 		addGeneDocument(client, gene, bulkRequest)
 	}
 	elasticutil.IterateSQL(rows, client, geneFn)
