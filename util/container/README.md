@@ -10,6 +10,7 @@ sysctl -w vm.max_map_count=262144
 Read more here: https://www.elastic.co/guide/en/elasticsearch/reference/5.x/_maximum_map_count_check.html
 
 ### Basic Setup:
+
 create a volume only container so that we can share the data
 ```bash
 docker create -v /usr/share/elasticsearch/data --name elasticdnaindex elasticsearch /bin/true
@@ -18,7 +19,14 @@ docker create -v /usr/share/elasticsearch/data --name elasticdnaindex elasticsea
 run the container with the volume only container
 (ensure you point to a config directory, there is an example on in this dir)
 ```bash
-docker run -d --volumes-from elasticdnaindex --name elasticdna -p 32840:9200 -v "$PWD/config":/usr/share/elasticsearch/config elasticsearch
+docker run -d --volumes-from elasticdnaindex -v $(pwd)/config:/usr/share/elasticsearch/config --name elasticdna -p 32840:9200 elasticsearch
+```
+
+### Use backup dump
+```bash
+d build . -t backup
+docker create -v /usr/share/elasticsearch/data -v /usr/share/elasticsearch/config --name elasticdnaindex backup /bin/true
+docker run -d --volumes-from elasticdnaindex --name elasticdna -p 32840:9200 elasticsearch
 ```
 
 ### Deployment tips
