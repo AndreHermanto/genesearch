@@ -10,9 +10,8 @@ functionality on human genes. This requirement was part of the
 
 ### Dependencies
 - [Go](https://golang.org/)
-- An Elastic Search instance. Indexes for genes and chromosomes will
- be created on this server. See [util/container/README.md](util/container/README.md) for instructions on
- how to build a containerised version of this.
+- An Elasticsearch instance. Indexes for genes and chromosomes will
+ be created on this server. See [shusson/docker-bouncy](https://github.com/shusson/docker-bouncy) for a containerised version of this.
 - Ensembl SQL server. This is the server where we get the data from.
 By default we use one of ensembls
 [public servers](http://asia.ensembl.org/info/data/mysql.html) but you can
