@@ -73,12 +73,12 @@ func (g GeneIndexer) BuildIndex(client *elastic.Client, shards int, replicas int
 }
 
 func addAllGeneDocuments(db *sql.DB, client *elastic.Client, coordID int) {
-	allGenesQuery := fmt.Sprintf("SELECT gene.gene_id, gene.`stable_id`, gene.`biotype`, xref.`display_label`, gene.description, seq_region.`name`, gene.`seq_region_start`, gene.`seq_region_end` FROM gene LEFT JOIN xref ON xref.`xref_id` = gene.`display_xref_id` Left JOIN `seq_region` ON seq_region.`seq_region_id` = gene.`seq_region_id` WHERE seq_region.`coord_system_id` = %d AND seq_region.`name` REGEXP '^[[:digit:]]{1,2}$|^[xXyY]$'", coordID)
+	allGenesQuery := fmt.Sprintf("SELECT gene.gene_id, gene.`stable_id`, gene.`biotype`, xref.`display_label`, gene.description, seq_region.`name`, gene.`seq_region_start`, gene.`seq_region_end` FROM gene LEFT JOIN xref ON xref.`xref_id` = gene.`display_xref_id` Left JOIN `seq_region` ON seq_region.`seq_region_id` = gene.`seq_region_id` WHERE seq_region.`coord_system_id` = %d AND seq_region.`name` REGEXP '^[[:digit:]]{1,2}$|^[xXyY]$|^MT$'", coordID)
 	addGeneDocuments(db, client, allGenesQuery)
 }
 
 func addPrimaryGeneDocuments(db *sql.DB, client *elastic.Client, coordID int) {
-	primarySourceGeneQuery := fmt.Sprintf("SELECT gene.gene_id, gene.`stable_id`, gene.`biotype`, xref.`display_label`, gene.description, seq_region.`name`, gene.`seq_region_start`, gene.`seq_region_end` FROM gene LEFT JOIN xref ON xref.`xref_id` = gene.`display_xref_id` Left JOIN `seq_region` ON seq_region.`seq_region_id` = gene.`seq_region_id` WHERE xref.`external_db_id` = 1100 AND seq_region.`coord_system_id` = %d AND seq_region.`name` REGEXP '^[[:digit:]]{1,2}$|^[xXyY]$'", coordID)
+	primarySourceGeneQuery := fmt.Sprintf("SELECT gene.gene_id, gene.`stable_id`, gene.`biotype`, xref.`display_label`, gene.description, seq_region.`name`, gene.`seq_region_start`, gene.`seq_region_end` FROM gene LEFT JOIN xref ON xref.`xref_id` = gene.`display_xref_id` Left JOIN `seq_region` ON seq_region.`seq_region_id` = gene.`seq_region_id` WHERE xref.`external_db_id` = 1100 AND seq_region.`coord_system_id` = %d AND seq_region.`name` REGEXP '^[[:digit:]]{1,2}$|^[xXyY]$|^MT$'", coordID)
 	addGeneDocuments(db, client, primarySourceGeneQuery)
 }
 

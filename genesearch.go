@@ -57,7 +57,7 @@ func main() {
 		log.New(os.Stderr, "ELASTIC ", log.LstdFlags),
 		log.New(os.Stdout, "", log.LstdFlags))
 
-	processors := []indexers.Indexer{indexers.GeneIndexer{}, indexers.ChromosomeIndexer{}}
+	processors := []indexers.Indexer{indexers.ChromosomeIndexer{}, indexers.GeneIndexer{}}
 
 	for _, processor := range processors {
 		processor.BuildIndex(client, shards, replicas)

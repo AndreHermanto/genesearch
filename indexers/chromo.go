@@ -21,7 +21,7 @@ type ChromosomeIndexer struct {
 
 // AddDocuments for a chromosome
 func (c ChromosomeIndexer) AddDocuments(db *sql.DB, client *elastic.Client, coordID int) {
-	sqlQuery := fmt.Sprintf("SELECT seq_region.name, seq_region.length FROM seq_region WHERE seq_region.`name` REGEXP '^[[:digit:]]{1,2}$|^[xXyY]$' AND seq_region.`coord_system_id` = %d", coordID)
+	sqlQuery := fmt.Sprintf("SELECT seq_region.name, seq_region.length FROM seq_region WHERE seq_region.`name` REGEXP '^[[:digit:]]{1,2}$|^[xXyY]$|^MT$' AND seq_region.`coord_system_id` = %d", coordID)
 	stmtOut, err := db.Prepare(sqlQuery)
 	check(err)
 	defer stmtOut.Close()
